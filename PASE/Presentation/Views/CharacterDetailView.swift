@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import MapKit
 
 struct CharacterDetailView: View {
     @StateObject private var viewModel: CharacterDetailViewModel
@@ -58,6 +59,17 @@ struct CharacterDetailView: View {
                     .padding()
                     .background(Color(.systemGray6))
                     .cornerRadius(8)
+                }
+                NavigationLink(destination: {
+                    let randomCoordinate = CLLocationCoordinate2D(
+                        latitude: Double.random(in: -60...70),
+                        longitude: Double.random(in: -160...160)
+                    )
+                    CharacterMapView(characterName: viewModel.characterInfo.name, coordinate: randomCoordinate)
+                }) {
+                    Label("Ver en mapa", systemImage: "map")
+                        .foregroundColor(.blue)
+                        .padding(.top, 4)
                 }
 
                 Divider()
