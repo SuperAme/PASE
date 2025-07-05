@@ -25,33 +25,31 @@ struct CharacterListView: View {
                             .padding()
                     } else {
                         List(viewModel.characters) { character in
-                            HStack(spacing: 16) {
-                                AsyncImage(url: URL(string: character.image)) { image in
-                                    image.resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                } placeholder: {
-                                    ProgressView()
+                            NavigationLink(destination: CharacterDetailView(character: character)) {
+                                HStack(spacing: 16) {
+                                    AsyncImage(url: URL(string: character.image)) { image in
+                                        image.resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                    } placeholder: {
+                                        ProgressView()
+                                    }
+                                    .frame(width: 60, height: 60)
+                                    .clipShape(Circle())
+                                    .shadow(radius: 3)
+
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(character.name)
+                                            .font(.headline)
+
+                                        Text(character.species)
+                                            .font(.subheadline)
+                                            .foregroundColor(.secondary)
+
+                                        Text("Estado: \(character.status)")
+                                            .font(.caption)
+                                            .foregroundColor(character.status.lowercased() == "alive" ? .green : .red)
+                                    }
                                 }
-                                .frame(width: 60, height: 60)
-                                .clipShape(Circle())
-                                .shadow(radius: 3)
-
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(character.name)
-                                        .font(.headline)
-
-                                    Text(character.species)
-                                        .font(.subheadline)
-                                        .foregroundColor(.secondary)
-
-                                    Text("Estado: \(character.status)")
-                                        .font(.caption)
-                                        .foregroundColor(character.status.lowercased() == "alive" ? .green : .red)
-                                }
-                            }
-                            .padding(.vertical, 4)
-                            .task {
-                                await viewModel.loadMoreCharactersIfNeeded(currentCharacter: character)
                             }
                         }
                         .listStyle(.plain)

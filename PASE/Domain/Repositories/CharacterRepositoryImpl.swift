@@ -9,7 +9,7 @@ import Foundation
 
 class CharacterRepositoryImpl: CharacterRepository {
     private let networkService: NetworkService
-    
+
     init(networkService: NetworkService = NetworkServiceImpl()) {
         self.networkService = networkService
     }
@@ -43,6 +43,26 @@ class CharacterRepositoryImpl: CharacterRepository {
 
         let response: CharacterListResponse = try await networkService.request(url)
         return response.results.map { $0.toDomain() }
+    }
+
+    func fetchEpisodes(ids: [Int]) async throws -> [Episode] {
+        guard !ids.isEmpty else { return [] }
+        let urlString: String
+        if ids.count == 1 {
+            urlString = "https://rickandmortyapi.com/api/episode/\(ids.first!)"
+        } else {
+            urlString = "https://rickandmortyapi.com/api/episode/\(ids.map(String.init).joined(separator: ","))"
+        }
+
+        guard let url = URL(string: urlString) else { throw URLError(.badURL) }
+        let (data, _) = try await URLSession.shared.data(from: url)
+        
+        if ids.count == 1 {
+            let episode = try JSONDecoder().decode(Episode.self, from: data)
+            return [episode]
+        } else {
+            return try JSONDecoder().decode([Episode].self, from: data)
+        }
     }
 }
 

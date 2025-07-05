@@ -14,4 +14,5 @@ protocol CharacterRepository {
         status: String,
         species: String
     ) async throws -> [Character]
+    func fetchEpisodes(ids: [Int]) async throws -> [Episode]
 }
