@@ -28,7 +28,7 @@ struct CharacterDetailView: View {
             VStack(spacing: 24) {
                 AsyncImage(url: URL(string: viewModel.characterInfo.image)) { image in
                     image.resizable()
-                        .aspectRatio(contentMode: .fill)
+                        .aspectRatio(contentMode: .fit)
                         .frame(height: 300)
                         .clipped()
                         .cornerRadius(16)
