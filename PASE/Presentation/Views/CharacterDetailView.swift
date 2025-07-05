@@ -25,79 +25,117 @@ struct CharacterDetailView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 16) {
+            VStack(spacing: 24) {
                 AsyncImage(url: URL(string: viewModel.characterInfo.image)) { image in
                     image.resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .cornerRadius(8)
+                        .aspectRatio(contentMode: .fill)
+                        .frame(height: 300)
+                        .clipped()
+                        .cornerRadius(16)
+                        .shadow(radius: 8)
                 } placeholder: {
                     ProgressView()
+                        .frame(height: 300)
                 }
-                .frame(maxWidth: .infinity, maxHeight: 300)
 
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 12) {
                     Text(viewModel.characterInfo.name)
-                        .font(.title)
-                        .fontWeight(.bold)
+                        .font(.largeTitle)
+                        .fontWeight(.heavy)
+                        .foregroundColor(.primary)
 
-                    Text("Género: \(viewModel.characterInfo.gender)")
-                    Text("Especie: \(viewModel.characterInfo.species)")
-                    Text("Estado: \(viewModel.characterInfo.status)")
-                    Text("Ubicación: \(viewModel.characterInfo.location.name)")
+                    HStack(spacing: 16) {
+                        Label(viewModel.characterInfo.gender, systemImage: "person.fill")
+                        Label(viewModel.characterInfo.species, systemImage: "leaf.fill")
+                        Label(viewModel.characterInfo.status, systemImage: "heart.fill")
+                            .foregroundColor(viewModel.characterInfo.status.lowercased() == "alive" ? .green : .red)
+                    }
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+
+                    HStack {
+                        Image(systemName: "mappin.and.ellipse")
+                            .foregroundColor(.blue)
+                        Text(viewModel.characterInfo.location.name)
+                            .font(.body)
+                            .foregroundColor(.primary)
+                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal)
 
-                Button(action: {
-                    viewModel.toggleFavorite()
-                }) {
-                    Label(
-                        viewModel.isFavorite ? "Favorito" : "Marcar como favorito",
-                        systemImage: viewModel.isFavorite ? "heart.fill" : "heart"
-                    )
-                    .foregroundColor(.red)
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(8)
+                HStack(spacing: 20) {
+                    Button(action: {
+                        viewModel.toggleFavorite()
+                    }) {
+                        Label(
+                            viewModel.isFavorite ? "Favorito" : "Marcar como favorito",
+                            systemImage: viewModel.isFavorite ? "heart.fill" : "heart"
+                        )
+                        .font(.headline)
+                        .foregroundColor(viewModel.isFavorite ? .white : .red)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(viewModel.isFavorite ? Color.red : Color.white)
+                        .cornerRadius(12)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.red, lineWidth: 2)
+                        )
+                        .shadow(radius: 4)
+                    }
+
+                    NavigationLink {
+                        let randomCoordinate = CLLocationCoordinate2D(
+                            latitude: Double.random(in: -60...70),
+                            longitude: Double.random(in: -160...160)
+                        )
+                        CharacterMapView(characterName: viewModel.characterInfo.name, coordinate: randomCoordinate)
+                    } label: {
+                        Label("Ver en mapa", systemImage: "map")
+                            .font(.headline)
+                            .foregroundColor(.blue)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.blue.opacity(0.1))
+                            .cornerRadius(12)
+                    }
                 }
-                NavigationLink(destination: {
-                    let randomCoordinate = CLLocationCoordinate2D(
-                        latitude: Double.random(in: -60...70),
-                        longitude: Double.random(in: -160...160)
-                    )
-                    CharacterMapView(characterName: viewModel.characterInfo.name, coordinate: randomCoordinate)
-                }) {
-                    Label("Ver en mapa", systemImage: "map")
-                        .foregroundColor(.blue)
-                        .padding(.top, 4)
-                }
+                .padding(.horizontal)
 
                 Divider()
 
-                if viewModel.isLoading {
-                    ProgressView("Cargando episodios...")
-                } else {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Episodios")
-                            .font(.headline)
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Episodios")
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                        .padding(.horizontal)
 
+                    if viewModel.isLoading {
+                        ProgressView("Cargando episodios...")
+                            .frame(maxWidth: .infinity)
+                    } else {
                         ForEach(viewModel.episodes) { episode in
-                            VStack(alignment: .leading) {
+                            VStack(alignment: .leading, spacing: 4) {
                                 Text(episode.name)
-                                    .fontWeight(.semibold)
+                                    .fontWeight(.medium)
                                 Text("Episodio: \(episode.episode)")
                                     .font(.subheadline)
                                     .foregroundColor(.secondary)
                             }
-                            .padding(.vertical, 4)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding()
+                            .background(Color(UIColor.secondarySystemBackground))
+                            .cornerRadius(10)
+                            .padding(.horizontal)
                         }
                     }
-                    .padding(.horizontal)
                 }
             }
             .padding(.vertical)
         }
         .navigationTitle(viewModel.characterInfo.name)
+        .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             viewModel.onAppear()
         }

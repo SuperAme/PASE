@@ -18,9 +18,6 @@ class FavoritesViewModel: ObservableObject {
     }
 
     func loadFavorites() async {
-        // Aquí convertiremos los objetos de Core Data a Character
-        // O si tienes un método en el repositorio que te devuelve [Character], úsalo
-
         do {
             let favoriteCharacters = try await favoritesUseCase.fetchAllFavorites()
             self.favorites = favoriteCharacters

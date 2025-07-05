@@ -52,7 +52,6 @@ class CharacterListViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
 
-        // Parse searchText into filters
         let (nameFilter, statusFilter, speciesFilter) = parseFilters(from: searchText)
 
         do {
@@ -79,17 +78,14 @@ class CharacterListViewModel: ObservableObject {
     private func parseFilters(from text: String) -> (String, String, String) {
         let lowercased = text.lowercased()
 
-        // Detect if text contains status keywords
         let statusKeywords = ["alive", "dead", "unknown"]
         let status = statusKeywords.first(where: lowercased.contains) ?? ""
 
-        // Remove status keywords from text
         var filteredText = lowercased
         if !status.isEmpty {
             filteredText = filteredText.replacingOccurrences(of: status, with: "").trimmingCharacters(in: .whitespaces)
         }
 
-        // Asumimos que el resto puede estar en nombre o especie
         let name = filteredText
         let species = filteredText
 

@@ -66,7 +66,6 @@ class CharacterRepositoryImpl: CharacterRepository {
     }
 }
 
-// Respuesta principal de la API
 struct CharacterListResponse: Decodable {
     let results: [CharacterDTO]
 }
