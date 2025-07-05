@@ -11,7 +11,12 @@ import SwiftUI
 struct PASEApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            let networkService = NetworkServiceImpl()
+            let repository = CharacterRepositoryImpl(networkService: networkService)
+            let useCase = GetCharactersUseCase(repository: repository)
+            let viewModel = CharacterListViewModel(getCharactersUseCase: useCase)
+            CharacterListView(viewModel: viewModel)
         }
     }
 }
+
