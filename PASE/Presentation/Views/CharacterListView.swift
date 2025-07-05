@@ -53,6 +53,9 @@ struct CharacterListView: View {
                                             .foregroundColor(character.status.lowercased() == "alive" ? .green : .red)
                                     }
                                 }
+                                .task {
+                                    await viewModel.loadMoreCharactersIfNeeded(currentCharacter: character)
+                                }
                             }
                         }
                         .listStyle(.plain)
