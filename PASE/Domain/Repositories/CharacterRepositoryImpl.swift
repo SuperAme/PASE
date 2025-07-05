@@ -14,8 +14,33 @@ class CharacterRepositoryImpl: CharacterRepository {
         self.networkService = networkService
     }
 
-    func fetchCharacters(page: Int = 1) async throws -> [Character] {
-        let url = URL(string: "https://rickandmortyapi.com/api/character?page=\(page)")!
+    func fetchCharacters(
+        page: Int = 1,
+        name: String = "",
+        status: String = "",
+        species: String = ""
+    ) async throws -> [Character] {
+        var urlComponents = URLComponents(string: "https://rickandmortyapi.com/api/character")!
+        urlComponents.queryItems = [
+            URLQueryItem(name: "page", value: "\(page)")
+        ]
+
+        if !name.isEmpty {
+            urlComponents.queryItems?.append(URLQueryItem(name: "name", value: name))
+        }
+
+        if !status.isEmpty {
+            urlComponents.queryItems?.append(URLQueryItem(name: "status", value: status.lowercased()))
+        }
+
+        if !species.isEmpty {
+            urlComponents.queryItems?.append(URLQueryItem(name: "species", value: species))
+        }
+
+        guard let url = urlComponents.url else {
+            throw NetworkError.invalidResponse
+        }
+
         let response: CharacterListResponse = try await networkService.request(url)
         return response.results.map { $0.toDomain() }
     }

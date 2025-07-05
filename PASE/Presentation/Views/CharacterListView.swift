@@ -9,42 +9,56 @@ import SwiftUI
 
 struct CharacterListView: View {
     @StateObject var viewModel: CharacterListViewModel
-    
+
     var body: some View {
         NavigationView {
-            Group {
-                if viewModel.isLoading && viewModel.characters.isEmpty {
-                    ProgressView("Cargando personajes...")
-                } else if let error = viewModel.errorMessage {
-                    Text("Error: \(error)")
-                        .foregroundColor(.red)
-                } else {
-                    List(viewModel.characters) { character in
-                        HStack {
-                            AsyncImage(url: URL(string: character.image)) { image in
-                                image.resizable()
-                            } placeholder: {
-                                ProgressView()
+            VStack(spacing: 0) {
+                SearchBarView(viewModel: viewModel)
+
+                Group {
+                    if viewModel.isLoading && viewModel.characters.isEmpty {
+                        ProgressView("Cargando personajes...")
+                            .frame(maxHeight: .infinity)
+                    } else if let error = viewModel.errorMessage {
+                        Text("Error: \(error)")
+                            .foregroundColor(.red)
+                            .padding()
+                    } else {
+                        List(viewModel.characters) { character in
+                            HStack(spacing: 16) {
+                                AsyncImage(url: URL(string: character.image)) { image in
+                                    image.resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                } placeholder: {
+                                    ProgressView()
+                                }
+                                .frame(width: 60, height: 60)
+                                .clipShape(Circle())
+                                .shadow(radius: 3)
+
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(character.name)
+                                        .font(.headline)
+
+                                    Text(character.species)
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondary)
+
+                                    Text("Estado: \(character.status)")
+                                        .font(.caption)
+                                        .foregroundColor(character.status.lowercased() == "alive" ? .green : .red)
+                                }
                             }
-                            .frame(width: 60, height: 60)
-                            .clipShape(Circle())
-                            
-                            VStack(alignment: .leading) {
-                                Text(character.name)
-                                    .font(.headline)
-                                Text(character.species)
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
-                                Text("Estado: \(character.status)")
-                                    .font(.caption)
-                                    .foregroundColor(character.status.lowercased() == "alive" ? .green : .red)
+                            .padding(.vertical, 4)
+                            .task {
+                                await viewModel.loadMoreCharactersIfNeeded(currentCharacter: character)
                             }
                         }
-                        .task {
-                            await viewModel.loadMoreCharactersIfNeeded(currentCharacter: character)
+                        .listStyle(.plain)
+                        .refreshable {
+                            await viewModel.loadInitialCharacters()
                         }
                     }
-                    .listStyle(.plain)
                 }
             }
             .navigationTitle("Rick & Morty")
@@ -54,3 +68,4 @@ struct CharacterListView: View {
         }
     }
 }
+
