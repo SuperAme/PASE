@@ -25,4 +25,8 @@ class FavoritesUseCase {
     func removeFavorite(characterId: Int) async throws {
         try await repository.removeFavorite(characterId: characterId)
     }
+
+    func fetchAllFavorites() async throws -> [Character] {
+        try await repository.fetchAllFavorites()
+    }
 }

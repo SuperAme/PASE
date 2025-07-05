@@ -10,6 +10,9 @@ import SwiftUI
 struct CharacterListView: View {
     @StateObject var viewModel: CharacterListViewModel
 
+    private let favoritesUseCase = FavoritesUseCase(repository: FavoritesRepositoryCoreData())
+    private let getEpisodesUseCase = GetEpisodesUseCase(repository: CharacterRepositoryImpl())
+
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
@@ -59,7 +62,18 @@ struct CharacterListView: View {
                     }
                 }
             }
-            .navigationTitle("Rick & Morty")
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Text("Rick & Morty")
+                        .font(.largeTitle)
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    NavigationLink(destination: FavoritesView(favoritesUseCase: favoritesUseCase, getEpisodesUseCase: getEpisodesUseCase)) {
+                        Image(systemName: "heart.fill")
+                            .foregroundColor(.red)
+                    }
+                }
+            }
         }
         .task {
             await viewModel.loadInitialCharacters()

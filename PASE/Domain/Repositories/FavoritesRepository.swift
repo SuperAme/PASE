@@ -9,4 +9,5 @@ protocol FavoritesRepository {
     func isFavorite(characterId: Int) -> Bool
     func addFavorite(character: Character) async throws
     func removeFavorite(characterId: Int) async throws
+    func fetchAllFavorites() async throws -> [Character]
 }

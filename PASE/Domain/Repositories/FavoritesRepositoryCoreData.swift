@@ -50,6 +50,27 @@ class FavoritesRepositoryCoreData: FavoritesRepository {
             try context.save()
         }
     }
+
+    func fetchAllFavorites() async throws -> [Character] {
+        let context = container.viewContext
+        let fetchRequest: NSFetchRequest<FavoriteCharacter> = FavoriteCharacter.fetchRequest()
+
+        let results = try context.fetch(fetchRequest)
+        // Convertir FavoriteCharacter (CoreData) a Character (modelo)
+        return results.compactMap { favorite in
+            Character(
+                id: Int(favorite.id),
+                name: favorite.name ?? "",
+                status: "", species: "", type: "", gender: "",
+                image: favorite.image ?? "",
+                url: "",
+                created: "",
+                origin: Location(name: "", url: ""),
+                location: Location(name: "", url: ""),
+                episode: []
+            )
+        }
+    }
 }
 
 
