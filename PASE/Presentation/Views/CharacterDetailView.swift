@@ -13,7 +13,13 @@ struct CharacterDetailView: View {
     init(character: Character) {
         let repository = CharacterRepositoryImpl()
         let getEpisodesUseCase = GetEpisodesUseCase(repository: repository)
-        _viewModel = StateObject(wrappedValue: CharacterDetailViewModel(character: character, getEpisodesUseCase: getEpisodesUseCase))
+        let favoritesRepository = FavoritesRepositoryCoreData()
+        let favoritesUseCase = FavoritesUseCase(repository: favoritesRepository)
+        _viewModel = StateObject(wrappedValue: CharacterDetailViewModel(
+            character: character,
+            getEpisodesUseCase: getEpisodesUseCase,
+            favoritesUseCase: favoritesUseCase
+        ))
     }
 
     var body: some View {

@@ -12,27 +12,33 @@ class CharacterDetailViewModel: ObservableObject {
     @Published var episodes: [Episode] = []
     @Published var isLoading = false
     @Published var isFavorite = false
-
+    
     private let character: Character
     private let getEpisodesUseCase: GetEpisodesUseCase
+    private let favoritesUseCase: FavoritesUseCase
 
-    init(character: Character, getEpisodesUseCase: GetEpisodesUseCase) {
+    init(
+        character: Character,
+        getEpisodesUseCase: GetEpisodesUseCase,
+        favoritesUseCase: FavoritesUseCase
+    ) {
         self.character = character
         self.getEpisodesUseCase = getEpisodesUseCase
+        self.favoritesUseCase = favoritesUseCase
 
-        loadFavoriteStatus()
+        self.isFavorite = favoritesUseCase.isFavorite(characterId: character.id)
     }
-
+    
     var characterInfo: Character {
         character
     }
-
+    
     func onAppear() {
         Task {
             await loadEpisodes()
         }
     }
-
+    
     private func loadEpisodes() async {
         isLoading = true
         do {
@@ -44,20 +50,19 @@ class CharacterDetailViewModel: ObservableObject {
         }
         isLoading = false
     }
-
+    
     func toggleFavorite() {
-        var favorites = UserDefaults.standard.array(forKey: "favorites") as? [Int] ?? []
-        if isFavorite {
-            favorites.removeAll { $0 == character.id }
-        } else {
-            favorites.append(character.id)
+        Task {
+            do {
+                if isFavorite {
+                    try await favoritesUseCase.removeFavorite(characterId: character.id)
+                } else {
+                    try await favoritesUseCase.addFavorite(character: character)
+                }
+                isFavorite.toggle()
+            } catch {
+                print("Error actualizando favorito: \(error)")
+            }
         }
-        UserDefaults.standard.set(favorites, forKey: "favorites")
-        isFavorite.toggle()
     }
-
-    private func loadFavoriteStatus() {
-            let favorites = UserDefaults.standard.array(forKey: "favorites") as? [Int] ?? []
-            isFavorite = favorites.contains(character.id)
-        }
 }
